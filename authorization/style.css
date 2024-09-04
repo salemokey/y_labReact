@@ -60,6 +60,10 @@ body {
     height: 14px;
 }
 
+.completedMessage {
+    margin-top: 10px;
+}
+
 .puff {
     padding: 6px;
 }
