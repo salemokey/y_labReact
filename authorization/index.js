@@ -1,44 +1,81 @@
 const form = document.getElementById("form");
 const username = document.getElementById("username");
-const email = document.getElementById("email");
 const password = document.getElementById("password");
 const confirmPassword = document.getElementById("confirmPassword");
 const completedMessage = form.querySelector(".completedMessage");
-const buttonLoader = form.querySelector('.puff');
+const buttonLoader = form.querySelector(".puff");
 const button = document.getElementById("submitBtn");
 
-const sendRequest = async () => {
+const sendRequest = async (username, password, confirmPassword) => {
   try {
-    buttonLoader.classList.remove('puff-hide');
-    const response = await fetch("/register", {
+    buttonLoader.classList.remove("puff-hide");
+    const response = await mockFetch("/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, email, password, confirmPassword }),
+      body: JSON.stringify({ username, password, confirmPassword }),
     });
-    
 
-    if (!response.ok) {
-      setTimeout(() => {
-        completedMessage.innerHTML = "Регистрация завершена успешно!";
-        buttonLoader.classList.add('puff-hide');
-      }, 2000);
+    if (response.ok) {
+      buttonLoader.classList.add("puff-hide");
+      const data = await response.json();
+      completedMessage.innerHTML = data.token;
     } else {
-      setTimeout(() => {
-        alert("Ошибка регистрации. Проверьте введенные данные.");
-      }, 2000);
+      buttonLoader.classList.add("puff-hide");
+      const errorData = await response.json();
+      completedMessage.innerHTML = errorData.token;
     }
   } catch (error) {
-    console.error("Ошибка:", error);
+    buttonLoader.classList.add("puff-hide");
+    console.error("Введите правильные данные");
+    completedMessage.innerHTML = "Введите данные снова!";
   }
 };
+////////////////////////////////
+
+const mockFetch = (url, options) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === "/api/auth/login" && options.method === "POST") {
+        const { username, password, confirmPassword } = JSON.parse(
+          options.body
+        );
+        if (
+          username === "user" &&
+          password === "password" &&
+          confirmPassword === password
+        ) {
+          resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                token: "Вы " + username + " аутентификация пройдена",
+              }),
+          });
+        } else {
+          reject({
+            ok: false,
+            json: () => Promise.resolve({ error: "Неверные учетные данные" }),
+          });
+        }
+      } else {
+        reject({
+          ok: false,
+          json: () => Promise.resolve({ error: "Неверный URL или метод" }),
+        });
+      }
+    }, 1000);
+  });
+};
+
+////////////////////////////////
 
 form.addEventListener("submit", (e) => {
   e.preventDefault();
-  
+
   validateInputs();
-  sendRequest();
+  sendRequest(username.value, password.value, confirmPassword.value);
 });
 
 const setError = (element, message) => {
@@ -59,15 +96,8 @@ const setSuccess = (element) => {
   inputControl.classList.add("success");
 };
 
-const isValid = (element) => {
-  const re =
-    /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/iu;
-  return re.test(String(element.value).toLowerCase());
-};
-
 const validateInputs = () => {
   const usernameValue = username.value.trim();
-  const emailValue = email.value.trim();
   const passwordValue = password.value.trim();
   const confirmPasswordValue = confirmPassword.value.trim();
 
@@ -75,14 +105,6 @@ const validateInputs = () => {
     setError(username, "Username is required");
   } else {
     setSuccess(username);
-  }
-
-  if (emailValue === "") {
-    setError(email, "Email is required");
-  } else if (!isValid(email)) {
-    setError(email, "Invalid email format");
-  } else {
-    setSuccess(email);
   }
 
   if (passwordValue === "") {
@@ -93,7 +115,7 @@ const validateInputs = () => {
     setSuccess(password);
   }
 
-  if (emailValue === "") {
+  if (confirmPasswordValue === "") {
     setError(confirmPassword, "Confirm password is required");
   } else if (passwordValue !== confirmPasswordValue) {
     setError(confirmPassword, "Passwords do not match");
