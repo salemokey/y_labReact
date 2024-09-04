@@ -3,6 +3,7 @@ const username = document.getElementById("username");
 const email = document.getElementById("email");
 const password = document.getElementById("password");
 const confirmPassword = document.getElementById("confirmPassword");
+const completedMessage = form.querySelector(".completedMessage");
 
 const sendRequest = async () => {
   try {
@@ -16,7 +17,7 @@ const sendRequest = async () => {
 
     if (!response.ok) {
       setTimeout(() => {
-        alert("Регистрация прошла успешно!");
+        completedMessage.innerHTML = "Регистрация завершена успешно!";
         form.reset();
       }, 2000);
     } else {
@@ -29,12 +30,6 @@ const sendRequest = async () => {
   }
 };
 
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  validateInputs();
-  sendRequest();
-});
 
 const setError = (element, message) => {
   const inputControl = element.parentElement;
@@ -95,4 +90,10 @@ const validateInputs = () => {
   } else {
     setSuccess(confirmPassword);
   }
-};
+}
+
+form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    validateInputs();
+    sendRequest();
+});
