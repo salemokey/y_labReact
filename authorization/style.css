@@ -26,7 +26,9 @@ body {
     background-color: #32194e;
     border: none;
     border-radius: 4px;
+    cursor: pointer;
 }
+
 .input-control {
     display: flex;
     flex-direction: column;
@@ -39,12 +41,15 @@ body {
     font-size: 12px;
     padding: 10px;
 }
+
 .input-control input:focus {
     outline: 0;
 }
+
 .input-control.success input {
     border-color: rgb(47, 255, 75);
 }
+
 .input-control.error input {
     border-color: red;
 }
@@ -53,4 +58,16 @@ body {
     color: red;
     font-size: 8px;
     height: 14px;
+}
+
+.puff {
+    padding: 6px;
+}
+
+.puff img {
+    width: 12px;
+}
+
+.puff-hide {
+    display: none;
 }

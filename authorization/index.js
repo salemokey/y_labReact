@@ -4,9 +4,12 @@ const email = document.getElementById("email");
 const password = document.getElementById("password");
 const confirmPassword = document.getElementById("confirmPassword");
 const completedMessage = form.querySelector(".completedMessage");
+const buttonLoader = form.querySelector('.puff');
+const button = document.getElementById("submitBtn");
 
 const sendRequest = async () => {
   try {
+    buttonLoader.classList.remove('puff-hide');
     const response = await fetch("/register", {
       method: "POST",
       headers: {
@@ -14,11 +17,12 @@ const sendRequest = async () => {
       },
       body: JSON.stringify({ username, email, password, confirmPassword }),
     });
+    
 
     if (!response.ok) {
       setTimeout(() => {
         completedMessage.innerHTML = "Регистрация завершена успешно!";
-        form.reset();
+        buttonLoader.classList.add('puff-hide');
       }, 2000);
     } else {
       setTimeout(() => {
@@ -30,6 +34,12 @@ const sendRequest = async () => {
   }
 };
 
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  
+  validateInputs();
+  sendRequest();
+});
 
 const setError = (element, message) => {
   const inputControl = element.parentElement;
@@ -90,10 +100,4 @@ const validateInputs = () => {
   } else {
     setSuccess(confirmPassword);
   }
-}
-
-form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    validateInputs();
-    sendRequest();
-});
+};
